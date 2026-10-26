@@ -1,0 +1,58 @@
+Voice Checkout
+Copyright (c) 2026 Voice Checkout contributors. Application code and the original
+SVG illustrations are MIT-licensed. Models and third-party services retain their
+own terms. No model weights, stock images, fonts, music or recordings are bundled.
+
+ChatStage — https://github.com/ayutaz/chatstage
+Copyright (c) 2026 ChatStage contributors. MIT.
+The browser Piper runtime/importmap setup in src/speech.js and index.html was
+adapted from ChatStage. Full license: licenses/CHATSTAGE.txt.
+
+piper-plus 0.8.2 — https://github.com/ayutaz/piper-plus
+Copyright (c) 2022 Michael Hansen; Copyright (c) 2025 ayutaz. MIT.
+License: licenses/PIPER.txt.
+@piper-plus/g2p 0.4.2: MIT; included in the upstream project above.
+The WASM phonemizer and dictionaries have additional notices reproduced verbatim
+in licenses/PIPER_THIRD_PARTY.md (including BSD notices for Open JTalk, MeCab,
+HTS and Japanese dictionaries). Upstream's descriptions of old/new dictionary
+packaging differ; the selected Rust WASM build bundles its Japanese dictionary.
+
+CSS10 Japanese six-language voice model — by ayousanz
+https://huggingface.co/ayousanz/piper-plus-css10-ja-6lang
+Pinned revision: bd0d812d4db9182ecdb907ef074becf9e230c17f
+The model card declares "css10-public-domain" (not the application's MIT license).
+Training source: CSS10 by Kyubyong Park and Thomas Mulc, Japanese reader
+ekzemplaro, Meian by Natsume Soseki. https://github.com/Kyubyong/css10
+CSS10 repository code is Apache-2.0; the underlying LibriVox recordings are
+public domain in the USA. Copyright status outside the USA can differ.
+https://librivox.org/pages/public-domain/
+Model card and dataset terms govern the downloaded model and generated speech.
+Do not infer that every Piper voice has these terms. Only CSS10 is selected here.
+
+ONNX Runtime Web 1.30.0 — Microsoft Corporation. MIT.
+https://github.com/microsoft/onnxruntime
+License: licenses/ONNX_RUNTIME.txt. Downloaded from jsDelivr at runtime.
+
+Transformers.js 3.8.1 — Hugging Face. Apache-2.0.
+https://github.com/huggingface/transformers.js/tree/3.8.1
+https://github.com/huggingface/transformers.js/blob/3.8.1/LICENSE
+Downloaded from jsDelivr, including its ONNX runtime dependencies, in a worker.
+
+Multilingual E5 small — Microsoft / intfloat. MIT (base model card).
+ONNX conversion by Xenova. Model and tokenizer downloaded from Hugging Face.
+https://huggingface.co/intfloat/multilingual-e5-small
+https://huggingface.co/Xenova/multilingual-e5-small
+Pinned ONNX revision: 761b726dd34fb83930e26aab4e9ac3899aa1fa78
+Citation: Liang Wang, Nan Yang, Xiaolong Huang, Linjun Yang, Rangan Majumder,
+Furu Wei. Multilingual E5 Text Embeddings: A Technical Report (2024).
+https://arxiv.org/abs/2402.05672
+
+PayPal JavaScript SDK — served directly by PayPal, subject to PayPal terms.
+https://developer.paypal.com/legal/agreements/
+PayPal is a trademark of PayPal, Inc. This independent sandbox demo is not
+endorsed by PayPal. The official button is rendered by PayPal's SDK.
+
+Playwright (development/testing only) — Microsoft Corporation. Apache-2.0.
+https://github.com/microsoft/playwright
+
+See package-lock.json for the exact installed development dependency graph.
