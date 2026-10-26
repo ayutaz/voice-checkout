@@ -8,8 +8,8 @@ env.allowLocalModels = false;
 env.backends.onnx.wasm.numThreads = 1;
 let extractor, embeddings;
 async function initialize() {
-  if (extractor) return;
-  extractor = await pipeline(
+  if (extractor && embeddings) return;
+  extractor ??= await pipeline(
     "feature-extraction",
     "Xenova/multilingual-e5-small",
     {

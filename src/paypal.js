@@ -84,6 +84,7 @@ export class PayPalCheckout {
     this.capturePromise = null;
     this.snapshot = null;
     this.result = null;
+    this.ready = false;
   }
   async create(_data, actions) {
     if (this.snapshot) throw new Error("Order already started.");
@@ -153,6 +154,10 @@ export class PayPalCheckout {
         label: "pay",
         height: 55,
         tagline: false,
+      },
+      onInit: () => {
+        this.ready = true;
+        this.onChange({ type: "ready" });
       },
       createOrder: (data, actions) => this.create(data, actions),
       onApprove: (data, actions) => this.approve(data, actions),

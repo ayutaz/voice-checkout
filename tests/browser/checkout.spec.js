@@ -13,6 +13,7 @@ async function sdkFixture(page, mode = "complete") {
       contentType: "application/javascript",
       body: `
     window.paypal = { Buttons(options) {
+      window.lastSdkOptions = options;
       let button;
       const actions = { order: {
         create: async payload => { window.lastOrder = payload; return 'TEST-ORDER-123'; },
@@ -21,7 +22,7 @@ async function sdkFixture(page, mode = "complete") {
       return { isEligible: () => true, render: async selector => {
         button = document.createElement('button'); button.textContent = 'PayPal fixture — test only';
         button.onclick = async () => { try { const orderID = await options.createOrder({}, actions); ${mode === "cancel" ? "options.onCancel();" : "await options.onApprove({orderID}, actions);"} } catch(e) { options.onError(e); } };
-        document.querySelector(selector).append(button);
+        document.querySelector(selector).append(button); options.onInit?.({}, {});
       }, close: async () => button?.remove() };
     } };
   `,
@@ -183,6 +184,39 @@ test("ambiguous orders, invalid quantities, safe text rendering and stale confir
   await expect(page.locator("#payment")).toBeHidden();
   await expect(page.locator("#confirmation")).toBeVisible();
   await expect(page.locator("#total")).toHaveText("¥1,000");
+});
+
+test("late SDK callbacks from an edited checkout cannot overwrite the current order", async ({
+  page,
+}) => {
+  await offline(page);
+  await sdkFixture(page);
+  await page.goto("?lang=en");
+  await command(page, "two coffees");
+  await page.locator("#confirm").click();
+  await page
+    .getByRole("button", { name: "PayPal fixture — test only" })
+    .waitFor();
+  await command(page, "one tea");
+  await page.evaluate(() =>
+    window.lastSdkOptions.onError(new Error("late callback")),
+  );
+  await expect(page.locator("#reply")).toContainText("1 Tea");
+  await expect(page.locator("#confirmation")).toBeVisible();
+  await page.evaluate(() => { window.obsoleteSdkOptions = window.lastSdkOptions; });
+  await page.locator("#confirm").click();
+  await page
+    .getByRole("button", { name: "PayPal fixture — test only" })
+    .waitFor();
+  await page.evaluate(() =>
+    window.obsoleteSdkOptions.onError(
+      new Error("late callback after a new checkout"),
+    ),
+  );
+  await page
+    .getByRole("button", { name: "PayPal fixture — test only" })
+    .click();
+  await expect(page.locator("#receipt")).toBeVisible();
 });
 
 test("keyboard ordering and mobile layout at 390 and 320 pixels", async ({

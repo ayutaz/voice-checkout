@@ -66,6 +66,18 @@ try {
   await page.locator("#order-input").fill("yes");
   await page.locator("#order-form button").click();
   assert.match(await page.locator("#total").textContent(), /280/);
+  await page.locator("#reset").click();
+  await page.locator("#order-input").fill("バターの香りのするパン");
+  await page.locator("#order-form button").click();
+  await page.waitForFunction(
+    () => !document.querySelector("#order-input").disabled,
+    null,
+    { timeout: 45000 },
+  );
+  report.checks.semanticJapaneseReply = await page
+    .locator("#reply")
+    .textContent();
+  assert.match(report.checks.semanticJapaneseReply, /one Croissant/);
   await page.locator("#mute").click();
   console.log("Checking real Japanese and English PCM synthesis…");
   report.checks.tts = await page.evaluate(async () => {
@@ -97,6 +109,7 @@ try {
   console.log("Checking the real sandbox SDK and order creation…");
   report.checks.paypal = await checkPayPal(browser, base);
   assert.ok(report.checks.paypal.orderCreated);
+  assert.equal(report.checks.paypal.popupHost, "www.sandbox.paypal.com");
   console.log(JSON.stringify({ paypal: report.checks.paypal }));
 } catch (error) {
   report.failure = error.message;

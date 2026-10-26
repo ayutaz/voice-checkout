@@ -222,7 +222,11 @@ function render() {
     agent.phase,
   );
   $("payment-status").textContent = paymentMessage;
-  $("paypal-buttons").inert = agent.phase === "processing";
+  $("paypal-buttons").inert =
+    ["processing", "uncertain"].includes(agent.phase) ||
+    (agent.phase === "checkout" &&
+      Boolean(paymentController) &&
+      !paymentController.ready);
   $("receipt").hidden = agent.phase !== "complete";
   if (paymentController?.result) {
     const r = paymentController.result;
@@ -268,7 +272,9 @@ function render() {
   }
   if (agent.phase === "checkout" && !buttons && !paymentController)
     mountPayment();
-  else if (!["checkout", "processing", "complete"].includes(agent.phase))
+  else if (
+    !["checkout", "processing", "complete", "uncertain"].includes(agent.phase)
+  )
     unmountPayment();
   if (focusKey) {
     const target = [...document.querySelectorAll("[data-focus-key]")].find(
@@ -289,8 +295,12 @@ function unmountPayment() {
 }
 async function mountPayment() {
   const epoch = ++paymentEpoch;
-  paymentController = new PayPalCheckout(agent, paymentChanged);
+  paymentController = new PayPalCheckout(agent, (event) => {
+    if (epoch === paymentEpoch) paymentChanged(event);
+  });
   const controller = paymentController;
+  $("paypal-buttons").inert = true;
+  $("paypal-buttons").setAttribute("aria-busy", "true");
   $("retry-payment").hidden = true;
   paymentMessage = t("creating").replace("…", "");
   $("payment-status").textContent =
@@ -298,7 +308,19 @@ async function mountPayment() {
   try {
     const paypal = await loadPayPal(clientId);
     if (epoch !== paymentEpoch || agent.phase !== "checkout") return;
-    buttons = paypal.Buttons(controller.options());
+    const options = controller.options();
+    for (const [name, handler] of Object.entries(options)) {
+      if (typeof handler !== "function") continue;
+      options[name] = (...args) => {
+        if (epoch !== paymentEpoch) {
+          if (name === "createOrder")
+            throw new Error("This checkout was replaced.");
+          return;
+        }
+        return handler(...args);
+      };
+    }
+    buttons = paypal.Buttons(options);
     if (!buttons.isEligible())
       throw new Error("PayPal is not eligible in this browser.");
     await buttons.render("#paypal-buttons");
@@ -308,12 +330,18 @@ async function mountPayment() {
   } catch {
     if (epoch !== paymentEpoch) return;
     paymentMessage = t("paymentError");
+    $("paypal-buttons").setAttribute("aria-busy", "false");
     $("payment-status").textContent = paymentMessage;
     $("retry-payment").hidden = false;
   }
 }
 function paymentChanged(event) {
   const { type, orderId, result } = event;
+  if (type === "ready") {
+    $("paypal-buttons").inert = false;
+    $("paypal-buttons").setAttribute("aria-busy", "false");
+    return;
+  }
   override = "";
   if (type === "created") savePending({ orderId, amount: total(agent.cart) });
   if (type === "complete" || type === "cancelled" || type === "error")
@@ -367,6 +395,8 @@ async function send(text) {
       if (suggestion && agent.revision === revision) agent.suggest(suggestion);
     } catch {
       aiState = "aiFailed";
+      semantic.dispose();
+      $("enable-ai").disabled = false;
     } finally {
       busy = false;
       override = "";
@@ -375,7 +405,7 @@ async function send(text) {
   render();
   announce();
   if (agent.phase === "checkout")
-    $("payment").scrollIntoView({ behavior: "smooth", block: "nearest" });
+    $("payment").scrollIntoView({ behavior: "auto", block: "nearest" });
 }
 $("order-form").addEventListener("submit", (event) => {
   event.preventDefault();

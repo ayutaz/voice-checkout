@@ -12,8 +12,18 @@ export async function checkPayPal(browser, base) {
     approved: false,
     captured: false,
     errors: [],
+    warnings: [],
   };
   page.on("pageerror", (e) => diagnostics.errors.push(e.message));
+  page.on("console", (msg) => {
+    if (["error", "warning"].includes(msg.type()))
+      diagnostics[msg.type() === "error" ? "errors" : "warnings"].push(
+        msg
+          .text()
+          .replace(/https?:\/\/\S+/gu, "[URL]")
+          .replace(/[A-Za-z0-9_-]{40,}/gu, "[token]"),
+      );
+  });
   page.on("requestfailed", (req) => {
     const url = new URL(req.url());
     if (url.hostname.endsWith("paypal.com"))
@@ -36,8 +46,37 @@ export async function checkPayPal(browser, base) {
     .first()
     .locator('[data-funding-source="paypal"]');
   try {
+    diagnostics.stage = "waiting for button";
     await button.waitFor({ timeout: 60000 });
+    // The iframe becomes visible before the SDK's render promise settles.
+    await page.waitForFunction(
+      () =>
+        document.querySelector("#payment-status").textContent === "" &&
+        document.querySelector("#paypal-buttons").getAttribute("aria-busy") ===
+          "false",
+      null,
+      { timeout: 60000 },
+    );
+    diagnostics.stage = "SDK rendered";
+    // PayPal overlays a separate prerender iframe during its fade-out. Clicking
+    // the real iframe before that overlay disappears can land on the placeholder.
+    await page.waitForFunction(
+      () =>
+        [
+          ...document.querySelectorAll(
+            '#paypal-buttons iframe[name*="prerender"]',
+          ),
+        ].every(
+          (el) =>
+            getComputedStyle(el).display === "none" ||
+            Number(getComputedStyle(el).opacity) === 0 ||
+            !el.isConnected,
+        ),
+      null,
+      { timeout: 30000 },
+    );
     await button.click();
+    diagnostics.stage = "button clicked";
     await page.waitForFunction(
       () =>
         /Order ID:|could not finish|unverified/u.test(
@@ -50,6 +89,7 @@ export async function checkPayPal(browser, base) {
     diagnostics.status = await page.locator("#payment-status").textContent();
     diagnostics.reply = await page.locator("#reply").textContent();
     diagnostics.orderCreated = /Order ID: [A-Z0-9]+/u.test(diagnostics.status);
+    diagnostics.stage = "order callback received";
     if (popup) {
       try {
         await popup.waitForURL(/https:\/\/(?:www\.)?sandbox\.paypal\.com\//u, {
