@@ -1,0 +1,21 @@
+{
+  "name": "voice-checkout",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A bilingual, voice-first PayPal sandbox checkout",
+  "license": "MIT",
+  "engines": { "node": ">=24" },
+  "scripts": {
+    "start": "node scripts/serve.js",
+    "test": "node --test tests/*.test.js",
+    "test:browser": "playwright test",
+    "test:live": "node scripts/live-check.js",
+    "verify": "npm test && npm run test:browser"
+  },
+  "dependencies": {
+    "piper-plus": "0.8.2",
+    "onnxruntime-web": "1.30.0"
+  },
+  "devDependencies": { "@playwright/test": "1.64.1" }
+}
