@@ -1,0 +1,16 @@
+.env
+.env.*
+!.env.example
+secrets.h
+codex_run_*.log
+codex_last_*.txt
+node_modules/
+.venv/
+__pycache__/
+.pio/
+build/
+models/
+weights/
+*.bin
+*.onnx
+starter-kit/
