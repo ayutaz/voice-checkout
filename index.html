@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Order by voice, hear it back, pay with PayPal. A Japanese and English cafe checkout with local AI and neural speech."
+    />
+    <meta name="theme-color" content="#173f35" />
+    <title>Voice Checkout — A little easier, out loud.</title>
+    <link rel="icon" href="assets/mark.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="assets/style.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "piper-plus": "https://unpkg.com/piper-plus@0.8.2/src/index.js",
+          "@piper-plus/g2p": "https://cdn.jsdelivr.net/npm/@piper-plus/g2p@0.4.2/src/index.js",
+          "onnxruntime-web": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.30.0/dist/ort.min.mjs"
+        }
+      }
+    </script>
+    <script type="module" src="src/app.js"></script>
+  </head>
+  <body>
+    <a class="skip" href="#order-input" data-i18n="skip">注文へ移動</a>
+    <header class="site-header">
+      <a class="brand" href="./" aria-label="Voice Checkout home"
+        ><img src="assets/mark.svg" width="38" height="38" alt="" />
+        <span>voice<span class="brand-light">checkout</span></span></a
+      >
+      <div class="header-tools">
+        <span class="sandbox-badge">SANDBOX · NO REAL MONEY</span
+        ><label class="language"
+          ><span class="sr-only" data-i18n="language">言語</span
+          ><select id="language">
+            <option value="ja">日本語</option>
+            <option value="en">English</option>
+          </select></label
+        >
+      </div>
+    </header>
+    <main>
+      <section class="intro" aria-labelledby="title">
+        <div>
+          <p class="eyebrow" data-i18n="eyebrow">
+            THE LITTLE CAFÉ · VOICE ORDERING
+          </p>
+          <h1 id="title" data-i18n="title">
+            いつもの注文を、<br />あなたの声で。
+          </h1>
+          <p class="lede" data-i18n="intro">
+            話して、聞いて、確認して。<br />小さな画面の操作を、もう少しやさしく。
+          </p>
+        </div>
+        <div class="intro-note">
+          <span class="soundwave" aria-hidden="true"
+            ><i></i><i></i><i></i><i></i><i></i
+          ></span>
+          <p data-i18n="introNote">Your voice.<br />Your order. Your say.</p>
+        </div>
+      </section>
+      <ol class="steps" aria-label="Checkout steps">
+        <li id="step-order">
+          <b>01</b> <span data-i18n="stepOrder">注文する</span>
+        </li>
+        <li id="step-review">
+          <b>02</b> <span data-i18n="stepReview">聞いて確認</span>
+        </li>
+        <li id="step-pay">
+          <b>03</b> <span data-i18n="stepPay">PayPal で支払う</span>
+        </li>
+      </ol>
+      <div class="workspace">
+        <section class="order-panel" aria-labelledby="order-heading">
+          <div class="section-title">
+            <h2 id="order-heading" data-i18n="orderHeading">
+              今日は何にしますか？
+            </h2>
+            <span class="small-label" data-i18n="menuLabel"
+              >SMALL MENU, MADE SIMPLE</span
+            >
+          </div>
+          <div id="menu" class="menu"></div>
+          <div class="conversation">
+            <div class="assistant-label">
+              <span class="status-dot"></span
+              ><span data-i18n="assistant">注文アシスタント</span>
+            </div>
+            <p
+              id="reply"
+              class="reply"
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
+            ></p>
+            <p id="transcript" class="transcript" hidden></p>
+            <div class="voice-row">
+              <button id="mic" class="mic-button" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <rect x="9" y="2" width="6" height="12" rx="3" />
+                  <path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3M8 22h8" /></svg
+                ><span data-i18n="speak">押して話す</span></button
+              ><button
+                id="repeat"
+                class="quiet-button"
+                type="button"
+                data-i18n="repeat"
+              >
+                もう一度聞く</button
+              ><button
+                id="mute"
+                class="quiet-button"
+                type="button"
+                aria-pressed="false"
+                data-i18n="mute"
+              >
+                音声を消す
+              </button>
+            </div>
+            <p id="mic-status" class="help" role="status"></p>
+            <form id="order-form">
+              <label for="order-input" data-i18n="typeLabel"
+                >キーボードでも注文できます</label
+              >
+              <div class="input-row">
+                <input
+                  id="order-input"
+                  name="order"
+                  type="text"
+                  maxlength="500"
+                  autocomplete="off"
+                  data-placeholder="placeholder"
+                  placeholder="コーヒーを二杯とクロワッサンを一つ"
+                /><button type="submit" class="send-button" data-i18n="send">
+                  送信
+                </button>
+              </div>
+            </form>
+            <div class="examples">
+              <span data-i18n="try">たとえば：</span
+              ><button type="button" id="example-order"></button
+              ><button type="button" id="example-edit"></button>
+            </div>
+          </div>
+          <details class="enhancements">
+            <summary data-i18n="enhancements">
+              端末内 AI とニューラル音声
+            </summary>
+            <p data-i18n="downloadHelp">
+              多言語 AI と Piper
+              音声をこのブラウザにダウンロードします（初回は約 200 MB）。API
+              キーは不要です。標準の注文操作はすぐに使えます。
+            </p>
+            <button
+              id="enable-ai"
+              class="secondary-button"
+              type="button"
+              data-i18n="enableAI"
+            >
+              AI と音声を読み込む
+            </button>
+            <p id="ai-status" class="help" role="status"></p>
+            <p id="voice-status" class="help" role="status"></p>
+          </details>
+        </section>
+        <aside class="cart-panel" aria-labelledby="cart-heading">
+          <div class="section-title">
+            <h2 id="cart-heading" data-i18n="cartHeading">ご注文</h2>
+            <span id="cart-count" class="cart-count">0</span>
+          </div>
+          <p id="fulfillment" class="fulfillment"></p>
+          <div id="cart-items" class="cart-items"></div>
+          <div class="total-row">
+            <span data-i18n="total">合計</span><strong id="total">￥0</strong>
+          </div>
+          <p class="help" data-i18n="totalHelp">JPY · 税込 · 送料なし</p>
+          <div id="confirmation" hidden>
+            <p class="confirm-copy" data-i18n="confirmCopy">
+              内容と合計を確認しましたか？
+            </p>
+            <button
+              id="confirm"
+              class="primary-button"
+              type="button"
+              data-i18n="confirmButton"
+            >
+              はい、PayPal へ進む</button
+            ><button
+              id="edit"
+              class="quiet-button full"
+              type="button"
+              data-i18n="editButton"
+            >
+              変更する
+            </button>
+          </div>
+          <div id="payment" hidden>
+            <h3 data-i18n="paypalHeading">PayPal sandbox</h3>
+            <p class="help" data-i18n="paypalHelp">
+              下の PayPal ボタンを押して、sandbox
+              のテスト用アカウントで承認してください。
+            </p>
+            <div id="paypal-buttons"></div>
+            <p
+              id="payment-status"
+              class="payment-status"
+              role="status"
+              aria-live="polite"
+            ></p>
+            <button
+              id="retry-payment"
+              class="secondary-button"
+              type="button"
+              hidden
+              data-i18n="retry"
+            >
+              再試行
+            </button>
+          </div>
+          <section
+            id="receipt"
+            class="receipt"
+            tabindex="-1"
+            aria-labelledby="receipt-heading"
+            hidden
+          >
+            <span class="receipt-check" aria-hidden="true">✓</span>
+            <h3 id="receipt-heading" data-i18n="paid">Sandbox 決済完了</h3>
+            <p id="receipt-summary"></p>
+            <dl>
+              <dt>Order ID</dt>
+              <dd id="order-id"></dd>
+              <dt>Capture ID</dt>
+              <dd id="capture-id"></dd>
+              <dt>Status</dt>
+              <dd id="capture-status"></dd>
+            </dl>
+          </section>
+          <button
+            id="reset"
+            class="quiet-button full"
+            type="button"
+            data-i18n="reset"
+          >
+            注文をクリア
+          </button>
+          <div class="sandbox-note">
+            <span aria-hidden="true">↗</span>
+            <p data-i18n="sandboxNote">
+              お試しのカフェです。実際の商品やお金のやり取りはありません。
+            </p>
+          </div>
+        </aside>
+      </div>
+      <details class="agent-details">
+        <summary data-i18n="agentDetails">アシスタントの操作を見る</summary>
+        <p data-i18n="agentHelp">
+          聞く → カタログと照合 → ツールを検証 → 読み上げ → あなたが確認 →
+          PayPal
+        </p>
+        <ol id="tool-log" class="tool-log"></ol>
+      </details>
+    </main>
+    <footer>
+      <span>Voice Checkout · Built for a little more independence.</span>
+      <div>
+        <a href="https://github.com/ayutaz/voice-checkout">Source & setup</a
+        ><a href="NOTICE">Credits & licenses</a>
+      </div>
+      <p data-i18n="privacy">
+        注文テキストは端末内で処理します。音声認識はブラウザのサービスへ音声を送る場合があります。PayPal
+        には注文内容を送信します。アクセス解析・注文の保存は行いません。
+      </p>
+    </footer>
+    <noscript
+      >This app needs JavaScript. Enable it to order and use PayPal
+      sandbox.</noscript
+    >
+  </body>
+</html>
