@@ -31,7 +31,7 @@ Static hosting cannot hold secrets or provide a trusted merchant ledger, so this
 - Real PayPal sandbox SDK loading and order creation, plus automated receipt validation/error/cancellation tests.
 - Large controls, text alternatives, keyboard access and a responsive layout.
 
-**Verification disclosure:** real buyer approval/capture is pending the owner's sandbox login. The end-to-end success/error/cancel automation uses a test-only SDK fixture. Update this disclosure with the observed approved-capture result after completing HUMAN_TODO.md; do not describe an unperformed transaction as verified.
+**Verification disclosure:** a real sandbox buyer approval and capture was completed on November 10, 2026: a JPY 980 itemized order returned status COMPLETED with a capture ID, and the app read the receipt aloud. The automated success/error/cancel tests use a test-only SDK fixture. This is sandbox only; no real money moved and real-money use has not been tested.
 
 ## What we learned and what's next
 
