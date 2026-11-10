@@ -43,6 +43,7 @@ JavaScript, HTML, CSS, PayPal JavaScript SDK v5, Orders v2, Web Speech API, Tran
 
 ## Submission links and presentation checks
 
+- Devpost: https://devpost.com/software/voice-checkout-6x75cv (submitted 2026-11-11 JST).
 - Source/setup: https://github.com/ayutaz/voice-checkout (public; MIT detected; checked logged out 2026-11-10).
 - Live demo (GitHub Pages): https://ayutaz.github.io/voice-checkout/ (checked logged out 2026-11-10: catalog order → ¥980 → confirmation → official PayPal button renders).
 - Video: https://youtu.be/6Im_13jNXOg (public, 1:55; checked logged out 2026-11-10).
