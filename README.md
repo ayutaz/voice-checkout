@@ -77,6 +77,6 @@ npm run test:live
 
 ## GitHub Pages
 
-The repository root is ready to serve directly: vanilla ES modules, relative asset URLs, an importmap and `.nojekyll`. No build/upload action or backend is needed. After publication, the manager selects **Settings → Pages → Deploy from a branch → main → /(root)**. Expected URL: `https://ayutaz.github.io/voice-checkout/` (not yet published/verified). Check that the repository About section detects MIT and set its website link to the Pages URL.
+The repository root is ready to serve directly: vanilla ES modules, relative asset URLs, an importmap and `.nojekyll`. No build/upload action or backend is needed. It is served from **Settings → Pages → Deploy from a branch → main → /(root)**. Published at `https://ayutaz.github.io/voice-checkout/` (main /root; checked 2026-11-10). The repository About section detects MIT and links to the Pages URL.
 
 Source is MIT; model/voice/service terms differ. See [NOTICE](NOTICE), [DECISIONS.md](DECISIONS.md), [SUBMISSION.md](SUBMISSION.md), [VIDEO_SCRIPT.md](VIDEO_SCRIPT.md), and [HUMAN_TODO.md](HUMAN_TODO.md). No push or publication is performed by this implementation task.
