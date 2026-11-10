@@ -45,6 +45,6 @@ JavaScript, HTML, CSS, PayPal JavaScript SDK v5, Orders v2, Web Speech API, Tran
 
 - Source/setup: https://github.com/ayutaz/voice-checkout (public; MIT detected; checked logged out 2026-11-10).
 - Live demo (GitHub Pages): https://ayutaz.github.io/voice-checkout/ (checked logged out 2026-11-10: catalog order → ¥980 → confirmation → official PayPal button renders).
-- Video: owner supplies the public YouTube link after recording VIDEO_SCRIPT.md.
+- Video: https://youtu.be/6Im_13jNXOg (public, 1:55; checked logged out 2026-11-10).
 - Working-build access is also provided by the complete README setup steps; judges do not need AI credentials.
 - Award fit: Best Use of Agentic Commerce, Best Use of PayPal + AI, Best Demo Delivery. No award eligibility or outcome is claimed.
